@@ -6,7 +6,13 @@ import (
 	"time"
 )
 
+var tenSecondTimeout = time.Duration(10 * time.Second)
+
 func Racer(a string, b string) (winner string, err error) {
+	return ConfigurableRacer(a, b, tenSecondTimeout)
+}
+
+func ConfigurableRacer(a string, b string, timeout time.Duration) (winner string, err error) {
 	// select blocks on reading from multiple channels.
 	// The first case that receives a value gets executed.
 	select {
@@ -14,7 +20,7 @@ func Racer(a string, b string) (winner string, err error) {
 		return a, nil
 	case <-ping(b):
 		return b, nil
-	case <-time.After(10 * time.Second):
+	case <-time.After(timeout):
 		return "", fmt.Errorf("timed out waiting for %s and %s", a, b)
 	}
 }
